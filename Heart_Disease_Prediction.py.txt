@@ -1,0 +1,662 @@
+# ==========================================
+# HEART DISEASE PREDICTION PROJECT
+# ==========================================
+
+# ------------------------------------------
+# Import Libraries
+# ------------------------------------------
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    roc_curve,
+    auc,
+    roc_auc_score
+)
+
+# ------------------------------------------
+# Load Dataset
+# ------------------------------------------
+
+df = pd.read_csv("heart.csv")
+
+print("="*60)
+print("FIRST FIVE ROWS")
+print("="*60)
+
+print(df.head())
+
+# ------------------------------------------
+# Last Five Rows
+# ------------------------------------------
+
+print("\nLAST FIVE ROWS")
+print(df.tail())
+
+# ------------------------------------------
+# Dataset Shape
+# ------------------------------------------
+
+print("\nDATASET SHAPE")
+print(df.shape)
+
+# ------------------------------------------
+# Column Names
+# ------------------------------------------
+
+print("\nCOLUMN NAMES")
+
+print(df.columns)
+
+# ------------------------------------------
+# Data Types
+# ------------------------------------------
+
+print("\nDATA TYPES")
+
+print(df.dtypes)
+
+# ------------------------------------------
+# Dataset Information
+# ------------------------------------------
+
+print("\nDATASET INFORMATION")
+
+print(df.info())
+
+# ------------------------------------------
+# Missing Values
+# ------------------------------------------
+
+print("\nMISSING VALUES")
+
+print(df.isnull().sum())
+
+# ------------------------------------------
+# Duplicate Records
+# ------------------------------------------
+
+print("\nDUPLICATE RECORDS")
+
+print(df.duplicated().sum())
+
+# Remove duplicates if available
+
+df = df.drop_duplicates()
+
+# ------------------------------------------
+# Statistical Summary
+# ------------------------------------------
+
+print("\nSTATISTICAL SUMMARY")
+
+print(df.describe())
+
+# ------------------------------------------
+# Target Distribution
+# ------------------------------------------
+
+print("\nTARGET DISTRIBUTION")
+
+print(df['target'].value_counts())
+
+print("\nTARGET DISTRIBUTION (%)")
+
+print(df['target'].value_counts(normalize=True)*100)
+
+# ==========================================
+# DATA VISUALIZATION
+# ==========================================
+
+# ------------------------------------------
+# Count Plot
+# ------------------------------------------
+
+plt.figure(figsize=(6,4))
+
+sns.countplot(x='target',data=df)
+
+plt.title("Target Variable Distribution")
+
+plt.xlabel("Heart Disease")
+
+plt.ylabel("Count")
+
+plt.show()
+
+# ------------------------------------------
+# Correlation Heatmap
+# ------------------------------------------
+
+plt.figure(figsize=(14,10))
+
+sns.heatmap(
+    df.corr(),
+    annot=True,
+    cmap='coolwarm'
+)
+
+plt.title("Correlation Matrix")
+
+plt.show()
+
+# ------------------------------------------
+# Histograms
+# ------------------------------------------
+
+df.hist(figsize=(16,12))
+
+plt.tight_layout()
+
+plt.show()
+
+# ------------------------------------------
+# Boxplots
+# ------------------------------------------
+
+for col in df.columns[:-1]:
+
+    plt.figure(figsize=(6,3))
+
+    sns.boxplot(x=df[col])
+
+    plt.title(col)
+
+    plt.show()
+
+# ------------------------------------------
+# Pair Plot
+# ------------------------------------------
+
+sns.pairplot(
+    df,
+    hue='target'
+)
+
+plt.show()
+
+# ------------------------------------------
+# Scatter Plot
+# ------------------------------------------
+
+plt.figure(figsize=(6,5))
+
+sns.scatterplot(
+    x='age',
+    y='chol',
+    hue='target',
+    data=df
+)
+
+plt.title("Age vs Cholesterol")
+
+plt.show()
+
+# ------------------------------------------
+# Distribution Plot
+# ------------------------------------------
+
+plt.figure(figsize=(6,4))
+
+sns.histplot(df["age"], kde=True)
+
+plt.title("Age Distribution")
+
+plt.show()
+
+# ==========================================
+# FEATURE SELECTION
+# ==========================================
+
+X = df.drop("target", axis=1)
+
+y = df["target"]
+
+# ==========================================
+# TRAIN TEST SPLIT
+# ==========================================
+
+X_train, X_test, y_train, y_test = train_test_split(
+
+    X,
+
+    y,
+
+    test_size=0.20,
+
+    random_state=42
+
+)
+
+# ==========================================
+# FEATURE SCALING
+# ==========================================
+
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+
+X_test = scaler.transform(X_test)
+
+print("\nDATA PREPROCESSING COMPLETED")
+# ==========================================
+# LOGISTIC REGRESSION
+# ==========================================
+
+print("\n" + "="*60)
+print("LOGISTIC REGRESSION")
+print("="*60)
+
+lr = LogisticRegression(max_iter=1000)
+
+lr.fit(X_train, y_train)
+
+lr_pred = lr.predict(X_test)
+
+lr_accuracy = accuracy_score(y_test, lr_pred)
+
+print("Accuracy :", lr_accuracy)
+
+print("\nClassification Report")
+
+print(classification_report(y_test, lr_pred))
+
+
+# ==========================================
+# DECISION TREE
+# ==========================================
+
+print("\n" + "="*60)
+print("DECISION TREE")
+print("="*60)
+
+dt = DecisionTreeClassifier(random_state=42)
+
+dt.fit(X_train, y_train)
+
+dt_pred = dt.predict(X_test)
+
+dt_accuracy = accuracy_score(y_test, dt_pred)
+
+print("Accuracy :", dt_accuracy)
+
+print("\nClassification Report")
+
+print(classification_report(y_test, dt_pred))
+
+
+# ==========================================
+# RANDOM FOREST
+# ==========================================
+
+print("\n" + "="*60)
+print("RANDOM FOREST")
+print("="*60)
+
+rf = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42
+)
+
+rf.fit(X_train, y_train)
+
+rf_pred = rf.predict(X_test)
+
+rf_accuracy = accuracy_score(y_test, rf_pred)
+
+print("Accuracy :", rf_accuracy)
+
+print("\nClassification Report")
+
+print(classification_report(y_test, rf_pred))
+
+
+# ==========================================
+# SUPPORT VECTOR MACHINE
+# ==========================================
+
+print("\n" + "="*60)
+print("SUPPORT VECTOR MACHINE")
+print("="*60)
+
+svm = SVC(probability=True)
+
+svm.fit(X_train, y_train)
+
+svm_pred = svm.predict(X_test)
+
+svm_accuracy = accuracy_score(y_test, svm_pred)
+
+print("Accuracy :", svm_accuracy)
+
+print("\nClassification Report")
+
+print(classification_report(y_test, svm_pred))
+
+
+# ==========================================
+# K NEAREST NEIGHBORS
+# ==========================================
+
+print("\n" + "="*60)
+print("K NEAREST NEIGHBORS")
+print("="*60)
+
+knn = KNeighborsClassifier(n_neighbors=5)
+
+knn.fit(X_train, y_train)
+
+knn_pred = knn.predict(X_test)
+
+knn_accuracy = accuracy_score(y_test, knn_pred)
+
+print("Accuracy :", knn_accuracy)
+
+print("\nClassification Report")
+
+print(classification_report(y_test, knn_pred))
+
+
+# ==========================================
+# MODEL COMPARISON
+# ==========================================
+
+accuracy = pd.DataFrame({
+
+    "Model":[
+        "Logistic Regression",
+        "Decision Tree",
+        "Random Forest",
+        "Support Vector Machine",
+        "K Nearest Neighbors"
+    ],
+
+    "Accuracy":[
+        lr_accuracy,
+        dt_accuracy,
+        rf_accuracy,
+        svm_accuracy,
+        knn_accuracy
+    ]
+
+})
+
+print("\nMODEL COMPARISON")
+
+print(accuracy)
+
+
+# ==========================================
+# ACCURACY BAR GRAPH
+# ==========================================
+
+plt.figure(figsize=(9,5))
+
+sns.barplot(
+    x="Model",
+    y="Accuracy",
+    data=accuracy
+)
+
+plt.title("Accuracy Comparison of Machine Learning Models")
+
+plt.xticks(rotation=15)
+
+plt.ylim(0,1)
+
+plt.show()
+
+
+# ==========================================
+# BEST MODEL
+# ==========================================
+
+best_model = accuracy.loc[accuracy["Accuracy"].idxmax()]
+
+print("\nBEST MODEL")
+
+print(best_model)
+
+
+# ==========================================
+# CONFUSION MATRIX
+# ==========================================
+
+cm = confusion_matrix(y_test, rf_pred)
+
+plt.figure(figsize=(6,5))
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues'
+)
+
+plt.xlabel("Predicted")
+
+plt.ylabel("Actual")
+
+plt.title("Confusion Matrix")
+
+plt.show()
+
+
+# ==========================================
+# ROC CURVE
+# ==========================================
+
+prob = rf.predict_proba(X_test)[:,1]
+
+fpr, tpr, threshold = roc_curve(y_test, prob)
+
+roc_auc = auc(fpr, tpr)
+
+plt.figure(figsize=(7,5))
+
+plt.plot(
+    fpr,
+    tpr,
+    label="Random Forest (AUC = %0.2f)" % roc_auc
+)
+
+plt.plot([0,1],[0,1],'r--')
+
+plt.xlabel("False Positive Rate")
+
+plt.ylabel("True Positive Rate")
+
+plt.title("ROC Curve")
+
+plt.legend()
+
+plt.show()
+
+print("ROC AUC Score :", roc_auc_score(y_test, prob))
+
+
+# ==========================================
+# FEATURE IMPORTANCE
+# ==========================================
+
+importance = pd.Series(
+    rf.feature_importances_,
+    index=X.columns
+)
+
+importance = importance.sort_values()
+
+plt.figure(figsize=(8,6))
+
+importance.plot(kind='barh')
+
+plt.title("Feature Importance")
+
+plt.xlabel("Importance Score")
+
+plt.show()
+
+
+# ==========================================
+# PREDICT NEW PATIENT
+# ==========================================
+
+sample = X.iloc[[0]]
+
+sample = scaler.transform(sample)
+
+prediction = rf.predict(sample)
+
+print("\nPrediction Result")
+
+if prediction[0] == 1:
+
+    print("Heart Disease Present")
+
+else:
+
+    print("No Heart Disease")
+
+
+# ==========================================
+# PROJECT SUMMARY
+# ==========================================
+
+print("\n" + "="*60)
+print("PROJECT SUMMARY")
+print("="*60)
+
+print("Dataset Loaded Successfully")
+
+print("Data Preprocessing Completed")
+
+print("Multiple Machine Learning Models Trained")
+
+print("Model Evaluation Completed")
+
+print("Heart Disease Prediction Successful")
+
+print("\nTHANK YOU")
+
+# ==========================================
+# END OF PROJECT
+# ==========================================
+# ==========================================
+# CROSS VALIDATION
+# ==========================================
+
+from sklearn.model_selection import cross_val_score
+
+print("\n" + "="*60)
+print("CROSS VALIDATION")
+print("="*60)
+
+cv_scores = cross_val_score(
+    rf,
+    X,
+    y,
+    cv=5
+)
+
+print("Cross Validation Scores")
+
+print(cv_scores)
+
+print("Average Accuracy")
+
+print(cv_scores.mean())
+
+
+# ==========================================
+# SAVE MODEL
+# ==========================================
+
+import joblib
+
+joblib.dump(rf, "heart_disease_model.pkl")
+
+joblib.dump(scaler, "scaler.pkl")
+
+print("\nModel Saved Successfully")
+
+
+# ==========================================
+# LOAD MODEL
+# ==========================================
+
+model = joblib.load("heart_disease_model.pkl")
+
+scaler_model = joblib.load("scaler.pkl")
+
+print("Saved Model Loaded Successfully")
+
+
+# ==========================================
+# CUSTOM PREDICTION FUNCTION
+# ==========================================
+
+def predict_heart_disease(data):
+
+    data = np.array(data).reshape(1,-1)
+
+    data = scaler_model.transform(data)
+
+    prediction = model.predict(data)
+
+    probability = model.predict_proba(data)
+
+    if prediction[0] == 1:
+        print("\nPrediction : Heart Disease Present")
+    else:
+        print("\nPrediction : No Heart Disease")
+
+    print("Probability :", probability)
+
+
+# ==========================================
+# SAMPLE PREDICTION
+# ==========================================
+
+sample_patient = [
+    63,
+    1,
+    3,
+    145,
+    233,
+    1,
+    0,
+    150,
+    0,
+    2.3,
+    0,
+    0,
+    1
+]
+
+predict_heart_disease(sample_patient)
+
+
+# ==========================================
+# THANK YOU
+# ==========================================
+
+print("\n" + "="*60)
+print("HEART DISEASE PREDICTION PROJECT COMPLETED")
+print("="*60)
